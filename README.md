@@ -1,2 +1,5 @@
-fis-plus-lsidff-plugin
-======================
+
+支持调试模式
+
+    debug=pkg
+    debug=file
