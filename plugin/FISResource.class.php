@@ -120,30 +120,22 @@ class FISResource {
                 //正常模式通过F.load加载静态资源
                 $html .= '<script type="text/javascript">';
                 $html .= 'F.load([';
+                $pkgs = array();
                 if(self::$arrStaticKeyHashMap['js']){
                     $arrStatics = &self::$arrStaticKeyHashMap['js'];
                     $length = count($arrStatics);
                     for($staticIndex =0; $staticIndex<$length; $staticIndex++){
-                        if($staticIndex == 0){
-                            $html .= '{"id":"' . $arrStatics[$staticIndex]['key'] . '","hash":"' . $arrStatics[$staticIndex]['hash'] . '"}';
-                        }else{
-                            $html .= ',{"id":"' . $arrStatics[$staticIndex]['key'] . '","hash":"' . $arrStatics[$staticIndex]['hash'] . '"}';
-                        }
-
+                        $pkgs[] = '{"id":"' . $arrStatics[$staticIndex]['key'] . '","hash":"' . $arrStatics[$staticIndex]['hash'] . '"}';
                     }
                 }
                 if(self::$arrStaticKeyHashMap['css']){
                     $arrStatics = &self::$arrStaticKeyHashMap['css'];
                     $length = count($arrStatics);
                     for($staticIndex =0; $staticIndex<$length; $staticIndex++){
-                        if($staticIndex == 0){
-                            $html .= '{"id":"' . $arrStatics[$staticIndex]['key'] . '","hash":"' . $arrStatics[$staticIndex]['hash'] . '"}';
-                        }else{
-                            $html .= ',{"id":"' . $arrStatics[$staticIndex]['key'] . '","hash":"' . $arrStatics[$staticIndex]['hash'] . '"}';
-                        }
-
+                        $pkgs[] = '{"id":"' . $arrStatics[$staticIndex]['key'] . '","hash":"' . $arrStatics[$staticIndex]['hash'] . '"}';
                     }
                 }
+                $html .= join(",", $pkgs);
                 $html .= '],lsdiffCallback);';
                 $html .= '</script>';
             }
