@@ -9,6 +9,19 @@ function smarty_compiler_html($arrParams,  $smarty){
         $strCode .= 'if(!class_exists(\'FISResource\')){require_once(\'' . $strResourceApiPath . '\');}';
         $strCode .= 'FISResource::setFramework(FISResource::getUri('.$strFramework.', $_smarty_tpl->smarty));';
     }
+
+    //localStorage diff
+    $fid = $arrParams['fid'];
+    $sampleRate = $arrParams['sampleRate'];
+    unset($arrParams['fid']);
+    unset($arrParams['sampleRate']);
+    if (isset($fid)){
+        $strCode .= 'FISResource::setFid('.$fid.');';
+    }
+    if (isset($sampleRate)){
+        $strCode .= 'FISResource::setSampleRate('.$sampleRate.');';
+    }
+
     $strCode .= ' ?>';
     foreach ($arrParams as $_key => $_value) {
         $strAttr .= ' ' . $_key . '="<?php echo ' . $_value . ';?>"';

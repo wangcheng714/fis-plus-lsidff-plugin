@@ -14,9 +14,11 @@ class FISResource {
 
     public static $framework = null;
 
-    /*支持localStorage-diff功能*/
+    /**start***支持localStorage-diff功能***/
     private static $arrStaticKeyHashMap = array();
     private static $debugType = null;
+    private static $fid = "fis-test";
+    private static $sampleRate = 0.001;//默认千分之一采样率
 
     public static function setDebugType(){
         if(array_key_exists('debug', $_GET)){
@@ -31,7 +33,16 @@ class FISResource {
     public static function getDebugType(){
         return self::$debugType;
     }
-    /*支持localStorage-diff功能*/
+
+    public static function setFid($fid){
+        self::$fid = $fid;
+    }
+
+    public static function setSampleRate($sampleRate){
+        self::$sample = $sampleRate;
+    }
+
+    /***end****/
 
     public static function reset(){
         self::$arrMap = array();
@@ -119,6 +130,9 @@ class FISResource {
             }else{
                 //正常模式通过F.load加载静态资源
                 $html .= '<script type="text/javascript">';
+                //todo : 去掉注释改成正式版
+                $html .= '/*F.setFid("' . self::$fid . '");*/';
+                $html .= '/*F.setRate("' . self::$sampleRate . '");*/';
                 $html .= 'F.load([';
                 $pkgs = array();
                 if(self::$arrStaticKeyHashMap['js']){
