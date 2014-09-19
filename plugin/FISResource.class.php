@@ -113,7 +113,11 @@ class FISResource {
             }
             if ($resourceMap) {
                 $html .= '<script type="text/javascript">';
-                $html .= 'require.resourceMap('.$resourceMap.');';
+                if(self::$debugType){
+                    $html .= 'require.resourceMap('.$resourceMap.');';
+                }else{
+                    $html .= 'F.config({ls_resourceMap : ' . $resourceMap . '});';
+                }
                 $html .= '</script>';
             }
             //调试模式输出script链接 todo:支持pkg和file两种模式
@@ -206,6 +210,12 @@ class FISResource {
                 if (!empty($deps)) {
                     $arrResourceMap['res'][$id]['deps'] = $deps;
                 }
+
+                if(!self::$debugType){
+                    $arrResourceMap['res'][$id]['type'] = $arrRes['type'];
+                    $arrResourceMap['res'][$id]['hash'] = $arrRes['hash'];
+                    $arrResourceMap['res'][$id]['key'] = $arrRes['key'];
+                }
             }
         }
         if (isset(self::$arrRequireAsyncCollection['pkg'])) {
@@ -213,6 +223,11 @@ class FISResource {
                 $arrResourceMap['pkg'][$id] = array(
                     'url'=> $arrRes['uri']
                 );
+                if(!self::$debugType){
+                    $arrResourceMap['pkg'][$id]['type'] = $arrRes['type'];
+                    $arrResourceMap['pkg'][$id]['hash'] = $arrRes['hash'];
+                    $arrResourceMap['pkg'][$id]['key'] = $arrRes['key'];
+                }
             }
         }
         if (!empty($arrResourceMap)) {
