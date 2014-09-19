@@ -130,9 +130,9 @@ class FISResource {
             }else{
                 //正常模式通过F.load加载静态资源
                 $html .= '<script type="text/javascript">';
+                //设置产品线id和统计采样率
                 //todo : 去掉注释改成正式版
-                $html .= '/*F.setFid("' . self::$fid . '");*/';
-                $html .= '/*F.setRate("' . self::$sampleRate . '");*/';
+                $html .= '/*F.config({fid:' . self::$fid . ',rate:' . self::$sampleRate . '});*/';
                 $html .= 'F.load([';
                 $pkgs = array();
                 if(self::$arrStaticKeyHashMap['js']){
