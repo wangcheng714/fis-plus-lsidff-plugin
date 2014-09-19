@@ -62,7 +62,14 @@ class FISResource {
     public static function renderResponse($strContent){
         $intPos = strpos($strContent, self::CSS_LINKS_HOOK);
         if($intPos !== false){
-            $strContent = substr_replace($strContent, self::render('css'), $intPos, strlen(self::CSS_LINKS_HOOK));
+            $html = "";
+            $loadMoadJs = (self::$framework && (self::$arrStaticCollection['js'] || self::$arrRequireAsyncCollection['res']));
+            //require.resourceMap要在mod.js加载以后执行
+            if ($loadMoadJs) {
+                $html .= '<script type="text/javascript" src="' . self::$framework . '"></script>' . PHP_EOL;
+            }
+            $html .= self::render('css');
+            $strContent = substr_replace($strContent, $html, $intPos, strlen(self::CSS_LINKS_HOOK));
         }
         self::reset();
         return $strContent;
@@ -106,14 +113,14 @@ class FISResource {
         $html = '';
         if ($type === 'js') {
             $resourceMap = self::getResourceMap();
-            $loadMoadJs = (self::$framework && (self::$arrStaticCollection['js'] || $resourceMap));
-            //require.resourceMap要在mod.js加载以后执行
-            if ($loadMoadJs) {
-                $html .= '<script type="text/javascript" src="' . self::$framework . '"></script>' . PHP_EOL;
-            }
+
             if ($resourceMap) {
                 $html .= '<script type="text/javascript">';
-                $html .= 'require.resourceMap('.$resourceMap.');';
+                if(self::$debugType){
+                    $html .= 'require.resourceMap('.$resourceMap.');';
+                }else{
+                    $html .= 'F.config({ls_resourceMap : ' . $resourceMap . '});';
+                }
                 $html .= '</script>';
             }
             //调试模式输出script链接 todo:支持pkg和file两种模式
@@ -134,29 +141,37 @@ class FISResource {
                 //todo : 去掉注释改成正式版
                 $html .= '/*F.config({fid:' . self::$fid . ',rate:' . self::$sampleRate . '});*/';
                 $html .= 'F.load([';
-                $pkgs = array();
+                $jsPkgs = array();
                 if(self::$arrStaticKeyHashMap['js']){
                     $arrStatics = &self::$arrStaticKeyHashMap['js'];
                     $length = count($arrStatics);
                     for($staticIndex =0; $staticIndex<$length; $staticIndex++){
-                        $pkgs[] = '{"id":"' . $arrStatics[$staticIndex]['key'] . '","hash":"' . $arrStatics[$staticIndex]['hash'] . '"}';
+                        $jsPkgs[] = '{"id":"' . $arrStatics[$staticIndex]['key'] . '","hash":"' . $arrStatics[$staticIndex]['hash'] . '"}';
                     }
                 }
-                if(self::$arrStaticKeyHashMap['css']){
-                    $arrStatics = &self::$arrStaticKeyHashMap['css'];
-                    $length = count($arrStatics);
-                    for($staticIndex =0; $staticIndex<$length; $staticIndex++){
-                        $pkgs[] = '{"id":"' . $arrStatics[$staticIndex]['key'] . '","hash":"' . $arrStatics[$staticIndex]['hash'] . '"}';
-                    }
-                }
-                $html .= join(",", $pkgs);
+                $html .= join(",", $jsPkgs);
                 $html .= '],lsdiffCallback);';
                 $html .= '</script>';
             }
             //调试模式输出link链接 todo:支持pkg和file两种模式
-        } else if($type === 'css' && self::$arrStaticCollection['css'] && self::$debugType){
-            $arrURIs = &self::$arrStaticCollection['css'];
-            $html = '<link rel="stylesheet" type="text/css" href="' . implode('"/><link rel="stylesheet" type="text/css" href="', $arrURIs) . '"/>';
+        } else if($type === 'css' && self::$arrStaticCollection['css']){
+            if(self::$debugType){
+                $arrURIs = &self::$arrStaticCollection['css'];
+                $html = '<link rel="stylesheet" type="text/css" href="' . implode('"/><link rel="stylesheet" type="text/css" href="', $arrURIs) . '"/>';
+            }else{
+                if(self::$arrStaticKeyHashMap['css']){
+
+                    $cssPkgs = array();
+                    $arrStatics = &self::$arrStaticKeyHashMap['css'];
+                    $length = count($arrStatics);
+                    for($staticIndex =0; $staticIndex<$length; $staticIndex++){
+                        $cssPkgs[] = '{"id":"' . $arrStatics[$staticIndex]['key'] . '","hash":"' . $arrStatics[$staticIndex]['hash'] . '"}';
+                    }
+                    $html .= '<script type="text/javascript">';
+                    $html .= 'F.load([' . join(",", $cssPkgs) . '])';
+                    $html .= '</script>';
+                }
+            }
         }
 
         return $html;
@@ -206,6 +221,12 @@ class FISResource {
                 if (!empty($deps)) {
                     $arrResourceMap['res'][$id]['deps'] = $deps;
                 }
+
+                if(!self::$debugType){
+                    $arrResourceMap['res'][$id]['type'] = $arrRes['type'];
+                    $arrResourceMap['res'][$id]['hash'] = $arrRes['hash'];
+                    $arrResourceMap['res'][$id]['key'] = $arrRes['key'];
+                }
             }
         }
         if (isset(self::$arrRequireAsyncCollection['pkg'])) {
@@ -213,6 +234,11 @@ class FISResource {
                 $arrResourceMap['pkg'][$id] = array(
                     'url'=> $arrRes['uri']
                 );
+                if(!self::$debugType){
+                    $arrResourceMap['pkg'][$id]['type'] = $arrRes['type'];
+                    $arrResourceMap['pkg'][$id]['hash'] = $arrRes['hash'];
+                    $arrResourceMap['pkg'][$id]['key'] = $arrRes['key'];
+                }
             }
         }
         if (!empty($arrResourceMap)) {
