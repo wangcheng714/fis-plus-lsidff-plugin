@@ -136,7 +136,7 @@ class FISResource {
                 $html .= '<script type="text/javascript">';
                 //设置产品线id和统计采样率
                 //todo : 去掉注释改成正式版
-                $html .= '/*F.config({fid:' . self::$fid . ',rate:' . self::$sampleRate . '});*/';
+                $html .= 'F.config({fid:"' . self::$fid . '",rate:' . self::$sampleRate . '});';
                 $html .= 'F.load([';
                 $pkgs = array();
                 if(self::$arrStaticKeyHashMap['js']){
