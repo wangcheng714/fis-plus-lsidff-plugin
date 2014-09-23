@@ -18,7 +18,7 @@ class FISResource {
     private static $arrStaticKeyHashMap = array();
     private static $debugType = null;
     private static $fid = "fis-test";
-    private static $sampleRate = 0.001;//默认千分之一采样率
+    private static $sampleRate = 0;//默认为零不进行采样
 
     public static function setDebugType(){
         if(array_key_exists('debug', $_GET)){
