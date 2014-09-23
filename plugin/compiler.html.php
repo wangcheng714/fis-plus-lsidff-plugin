@@ -13,14 +13,20 @@ function smarty_compiler_html($arrParams,  $smarty){
     //localStorage diff
     $fid = $arrParams['fid'];
     $sampleRate = $arrParams['sampleRate'];
+    $cssDiff = $arrParams['cssDiff'];
     unset($arrParams['fid']);
     unset($arrParams['sampleRate']);
+    unset($arrParams['cssDiff']);
     if (isset($fid)){
-        $strCode .= 'FISResource::setFid('.$fid.');';
+        $strCode .= 'FISResource::setFid(' . $fid . ');';
     }
     if (isset($sampleRate)){
-        $strCode .= 'FISResource::setSampleRate('.$sampleRate.');';
+        $strCode .= 'FISResource::setSampleRate(' . $sampleRate . ');';
     }
+    if (isset($cssDiff)){
+        $strCode .= 'FISResource::setCssDiff(' . $cssDiff . ');';
+    }
+
 
     $strCode .= ' ?>';
     foreach ($arrParams as $_key => $_value) {

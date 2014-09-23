@@ -19,6 +19,7 @@ class FISResource {
     private static $debugType = null;
     private static $fid = "fis-test";
     private static $sampleRate = 0;//默认为零不进行采样
+    private static $cssDiff = false; //默认css不采用增量更新,解决css异步加载闪屏的问题
 
     public static function setDebugType(){
         if(array_key_exists('debug', $_GET)){
@@ -32,6 +33,14 @@ class FISResource {
 
     public static function getDebugType(){
         return self::$debugType;
+    }
+
+    public static function setCssDiff($cssDiff){
+        self::$cssDiff = $cssDiff;
+    }
+
+    public static function getCssDiff(){
+        return self::$cssDiff;
     }
 
     public static function setFid($fid){
@@ -146,11 +155,13 @@ class FISResource {
                         $pkgs[] = '{"id":"' . $arrStatics[$staticIndex]['key'] . '","hash":"' . $arrStatics[$staticIndex]['hash'] . '"}';
                     }
                 }
-                if(self::$arrStaticKeyHashMap['css']){
-                    $arrStatics = &self::$arrStaticKeyHashMap['css'];
-                    $length = count($arrStatics);
-                    for($staticIndex =0; $staticIndex<$length; $staticIndex++){
-                        $pkgs[] = '{"id":"' . $arrStatics[$staticIndex]['key'] . '","hash":"' . $arrStatics[$staticIndex]['hash'] . '"}';
+                if(self::$cssDiff){
+                    if(self::$arrStaticKeyHashMap['css']){
+                        $arrStatics = &self::$arrStaticKeyHashMap['css'];
+                        $length = count($arrStatics);
+                        for($staticIndex =0; $staticIndex<$length; $staticIndex++){
+                            $pkgs[] = '{"id":"' . $arrStatics[$staticIndex]['key'] . '","hash":"' . $arrStatics[$staticIndex]['hash'] . '"}';
+                        }
                     }
                 }
                 $html .= join(",", $pkgs);
@@ -158,9 +169,11 @@ class FISResource {
                 $html .= '</script>';
             }
             //调试模式输出link链接 todo:支持pkg和file两种模式
-        } else if($type === 'css' && self::$arrStaticCollection['css'] && self::$debugType){
-            $arrURIs = &self::$arrStaticCollection['css'];
-            $html = '<link rel="stylesheet" type="text/css" href="' . implode('"/><link rel="stylesheet" type="text/css" href="', $arrURIs) . '"/>';
+        } else if($type === 'css' && self::$arrStaticCollection['css']){
+            if(self::$debugType || !self::$cssDiff){
+                $arrURIs = &self::$arrStaticCollection['css'];
+                $html = '<link rel="stylesheet" type="text/css" href="' . implode('"/><link rel="stylesheet" type="text/css" href="', $arrURIs) . '"/>';
+            }
         }
 
         return $html;
