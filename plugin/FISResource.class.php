@@ -129,7 +129,6 @@ class FISResource {
                 }
                 $html .= '</script>';
             }
-            //调试模式输出script链接 todo:支持pkg和file两种模式
             if (self::$debugType) {
                 if(self::$arrStaticCollection['js']){
                     $arrURIs = &self::$arrStaticCollection['js'];
@@ -144,7 +143,6 @@ class FISResource {
                 //正常模式通过F.load加载静态资源
                 $html .= '<script type="text/javascript">';
                 //设置产品线id和统计采样率
-                //todo : 去掉注释改成正式版
                 $html .= 'F.config({fid:"' . self::$fid . '",rate:' . self::$sampleRate . '});';
                 $html .= 'F.load([';
                 $pkgs = array();
@@ -168,7 +166,6 @@ class FISResource {
                 $html .= '],lsdiffCallback);';
                 $html .= '</script>';
             }
-            //调试模式输出link链接 todo:支持pkg和file两种模式
         } else if($type === 'css' && self::$arrStaticCollection['css']){
             if(self::$debugType || !self::$cssDiff){
                 $arrURIs = &self::$arrStaticCollection['css'];
